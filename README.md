@@ -1,1 +1,1 @@
-# BitInsight-Real-Time-Crypto-Trading-Platform-
+# BitInsight-Real-Time-Crypto-Trading-Platform
