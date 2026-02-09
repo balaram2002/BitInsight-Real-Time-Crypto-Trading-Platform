@@ -1,11 +1,22 @@
+import { getCoinList } from '@/State/Coin/Action'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Avatar, AvatarImage } from '@radix-ui/react-avatar'
-import React from 'react'
+import React, { use, useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 
-const AssetTable = () => {
+const AssetTable = ({coin,category}) => {
+  const dispatch=useDispatch()
+  const navigate=useNavigate()
+
+
+
   return (
     <Table>
-  <TableHeader>
+
+      <ScrollArea className={`${category=="all"?"h-[76vh]":"h-[82vh]"}`}>
+         <TableHeader>
     <TableRow>
       <TableHead className="w-[100px]">COIN</TableHead>
       <TableHead>SYMBOL</TableHead>
@@ -16,20 +27,21 @@ const AssetTable = () => {
     </TableRow>
   </TableHeader>
   <TableBody>
-    {[1,1,1,1,1,1,1,1,1,1].map((item,index)=><TableRow key={index}>
-      <TableCell className="font-medium flex items-center gap-2">
+    {coin.map((item,index)=><TableRow key={item.id}>
+      <TableCell onClick={()=>navigate(`/market/${item.id}`)} className="font-medium flex items-center gap-2">
         <Avatar className="-z-50">
-          <AvatarImage src="https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400"/>
+          <AvatarImage src={item.image}/>
         </Avatar>
-        <span>Bitcoin</span>
+        <span>{item.name}</span>
       </TableCell>
-      <TableCell>BTC</TableCell>
-      <TableCell>9124463121</TableCell>
-      <TableCell>1364881428323</TableCell>
-      <TableCell>-0.20009</TableCell>
-      <TableCell className="text-right">69249</TableCell>
+      <TableCell>{item.symbol}</TableCell>
+      <TableCell>{item.total_volume}</TableCell>
+      <TableCell>{item.market_cap}</TableCell>
+      <TableCell>{item.price_change_percentage_24h}</TableCell>
+      <TableCell className="text-right">{item.current_price}</TableCell>
     </TableRow>)}
-  </TableBody>
+  </TableBody> 
+      </ScrollArea>
 </Table>
       )
 }

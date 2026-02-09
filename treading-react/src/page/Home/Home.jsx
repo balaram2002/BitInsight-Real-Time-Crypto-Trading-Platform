@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import StockChart from './StockChart';
 import AssetTable from './AssetTable';
@@ -6,13 +6,27 @@ import { Avatar, AvatarImage } from '@radix-ui/react-avatar';
 import { Cross1Icon, DotIcon } from '@radix-ui/react-icons';
 import { MessageCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { getCoinList, getTop50CoinList } from '@/State/Coin/Action';
+import { useSelector, useDispatch } from 'react-redux';
+import { store } from '@/State/Store';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 export const Home = () => {
   const [category, setCategory] = React.useState("all");
-  const[inputValue,setInputValue]=React.useState("")
-  const [isBotRealease,setIsBotRealease]=React.useState(false)
+  const[inputValue,setInputValue]=React.useState("");
+  const [isBotRealease,setIsBotRealease]=React.useState(false);
+  const{coin}=useSelector(store=>store);
+  const dispatch=useDispatch();
 
-  const handleBotRealease=()=>setIsBotRealease(!isBotRealease)
+  const handleBotRealease=()=>setIsBotRealease(!isBotRealease);
 
   const handleCategory = (value) => {
     setCategory(value);
@@ -26,7 +40,19 @@ export const Home = () => {
       console.log(inputValue)
     }
     setInputValue("")
-  }
+  };
+
+  useEffect(()=>{
+    if(category==="top50" && coin.top50?.length===0){
+      dispatch(getTop50CoinList())
+    }
+  },[category,dispatch,coin.top50])
+
+
+  useEffect(()=>{
+
+    dispatch(getCoinList(1))
+  },[])
 
   return (
     <div className='relative'>
@@ -63,12 +89,38 @@ export const Home = () => {
               Top Losers
             </Button>
           </div>
-          <AssetTable />
+          <AssetTable coin={category=="all"?coin.coinList:coin.top50} category={category}/>
+          <div>
+            <Pagination>
+  <PaginationContent>
+    <PaginationItem>
+      <PaginationPrevious href="#" />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#">1</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#" isActive>
+        2
+      </PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationLink href="#">3</PaginationLink>
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationEllipsis />
+    </PaginationItem>
+    <PaginationItem>
+      <PaginationNext href="#" />
+    </PaginationItem>
+  </PaginationContent>
+</Pagination>
+          </div>
         </div>
 
         {/* Right Side - Chart & Info */}
         <div className='lg:w-[50%] p-4'>
-          <StockChart />
+          <StockChart coinId={"bitcoin"}/>
           <div className="flex gap-5 items-center mt-5">
             <Avatar>
               <AvatarImage
@@ -118,7 +170,7 @@ export const Home = () => {
            {
             [1,1,1,1].map((item,i)=><div key={i}
             className={`${i % 2 === 0 ? "self-start" : "self-end"} pb-5 w-auto`}
->
+            >
               {i%2==0?<div className="justify-end self-end px-5 py-2 rounded-md bg-slate-800 w-auto">
                 <p>prompt who are you</p>
               </div>: <div className="justify-end self-end px-5 py-2 rounded-md bg-slate-800 w-auto">
