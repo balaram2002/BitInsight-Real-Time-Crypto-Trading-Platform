@@ -4,8 +4,9 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { DotFilledIcon } from '@radix-ui/react-icons'
 import React from 'react'
+import api, { authHeaders, getApiError } from '@/config/api'
 
-const TopupForm = () => {
+const TopupForm = ({onComplete}) => {
   const [amount,setAmount]=React.useState('')
   const[paymentMethod,setPaymentMethod]=React.useState("RAZORPAY")
   const handlePaymentMethodChange=(value)=>{
@@ -14,8 +15,16 @@ const TopupForm = () => {
   const handleChange=(e)=>{
     setAmount(e.target.value)
   }
-  const handleSubmit =() =>{
-    console.log(amount,paymentMethod);
+  const [message,setMessage]=React.useState("")
+  const handleSubmit =async () =>{
+    try {
+      const {data}=await api.post(`/api/payment/${paymentMethod}/amount/${amount}`,null,{headers:authHeaders()})
+      setMessage("Payment page opened")
+      onComplete?.()
+      if(data.payment_url) window.location.assign(data.payment_url)
+    } catch (error) {
+      setMessage(getApiError(error))
+    }
   };
   return (
     <div className='pt-10 space-y-5'>
@@ -42,9 +51,8 @@ placeholder="$9999"
  id="r1"
  />
  <Label htmlFor="r1">
-<div className='bg-white rounded-md px-5 py-2 w-32'>
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/
-Razorpay_logo.svg/1200px-Razorpay_logo.svg.png" alt=""/>
+<div className='bg-white rounded-md px-5 py-2 w-32 h-12 flex items-center justify-center'>
+<img className="max-h-8 max-w-full" src="https://upload.wikimedia.org/wikipedia/commons/8/89/Razorpay_logo.svg" alt="Razorpay"/>
 </div>
  </Label>
 
@@ -58,12 +66,10 @@ Razorpay_logo.svg/1200px-Razorpay_logo.svg.png" alt=""/>
  id="r2"
  />
  <Label htmlFor="r2">
-<div className='bg-white rounded-md px-5 w-32'>
+<div className='bg-white rounded-md px-5 w-32 h-12 flex items-center justify-center'>
 <img
-className='h-9'
-src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/
-ba/Stripe_Logo%2C_revised_2016.svg/
-768px-Stripe_Logo%2C_revised_2016.svg.png" alt=""/>
+className='max-h-8 max-w-full'
+src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Stripe_Logo%2C_revised_2016.svg" alt="Stripe"/>
 </div>
  </Label>
 
@@ -71,7 +77,8 @@ ba/Stripe_Logo%2C_revised_2016.svg/
 
   </RadioGroup>
 </div>
-<Button onClick={handleSubmit} className="w-full py-7">
+{message && <p className="text-sm text-center">{message}</p>}
+<Button onClick={handleSubmit} disabled={!amount} className="w-full py-7">
   Submit
 </Button>
 </div>

@@ -2,14 +2,22 @@ import { Button } from '@/components/ui/button'
 import { DialogClose } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input'
 import React from 'react'
+import api, { authHeaders, getApiError } from '@/config/api'
 
-const WithdrawalForm = () => {
+const WithdrawalForm = ({onComplete}) => {
   const [amount,setAmount]=React.useState('');
   const handleChange=(e)=>{
     setAmount(e.target.value)
   };
-  const handleSubmit = () =>{
-    console.log(amount);
+  const [message,setMessage]=React.useState('')
+  const handleSubmit = async () =>{
+    try {
+      await api.post(`/api/withdrawal/${amount}`,null,{headers:authHeaders()})
+      setMessage('Withdrawal requested')
+      onComplete?.()
+    } catch (error) {
+      setMessage(getApiError(error))
+    }
   }
 
   return (
@@ -46,6 +54,7 @@ src="https://cdn.pixabay.com/photo/2020/02/18/11/03/bank-4859142_1280.png" alt="
 </div>
 </div>
 </div>
+{message && <p className='text-sm text-center'>{message}</p>}
 <DialogClose className='w-full'>
 <Button  onClick={handleSubmit }className="w-full py-7 text-xl">Withdraw</Button>
 </DialogClose>

@@ -6,8 +6,31 @@ import TopupForm from "./TopupForm";
 import WithdrawalForm from "./WithdrawalForm";
 import TransferForm from "./TransferForm";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import api, { authHeaders, getApiError } from "@/config/api";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import PaymentConfirmation from "./PaymentConfirmation";
 
 const Wallet = () => {
+  const [wallet,setWallet]=useState(null)
+  const [error,setError]=useState("")
+  const [searchParams]=useSearchParams()
+  const loadWallet=useCallback(async()=>{
+    try {
+      setError("")
+      const {data}=await api.get("/api/wallet",{headers:authHeaders()})
+      setWallet(data)
+    } catch (requestError) {
+      setError(getApiError(requestError))
+    }
+  },[])
+
+  useEffect(()=>{ loadWallet() },[loadWallet])
+
+  if (searchParams.get("order_id")) {
+    return <PaymentConfirmation onComplete={loadWallet}/>
+  }
+
   return (
     <div className="flex flex-col items-center">
 <div className="pt-10 w-full lg:w-[60%]">
@@ -28,7 +51,7 @@ className="cursor-pointer hover:text-slate-300"/>
     </div>
   </div>
   <div>
-    <ReloadIcon className="w-6 h-6 cursor-pointer 
+    <ReloadIcon onClick={loadWallet} className="w-6 h-6 cursor-pointer 
     hover:text-gray-400"/>
   </div>
 </div>
@@ -37,7 +60,7 @@ className="cursor-pointer hover:text-slate-300"/>
   <div className="flex items-center">
 <DollarSign/>
 <span className="text-2xl font-semibold">
-  20000
+  {wallet?.balance ?? "-"}
 </span>
   </div>
   <div className="flex gap-7 mt-5">
@@ -57,7 +80,7 @@ className="cursor-pointer hover:text-slate-300"/>
         Top Up Your Wallet 
       </DialogTitle>
     </DialogHeader>
-    <TopupForm/>
+    <TopupForm onComplete={loadWallet}/>
   </DialogContent>
 </Dialog>
 
@@ -77,7 +100,7 @@ className="cursor-pointer hover:text-slate-300"/>
         Request Withdrawal
       </DialogTitle>
     </DialogHeader>
-    <WithdrawalForm/>
+    <WithdrawalForm onComplete={loadWallet}/>
   </DialogContent>
 </Dialog>
 <Dialog>
@@ -96,7 +119,7 @@ className="cursor-pointer hover:text-slate-300"/>
         Transfer to other wallet 
       </DialogTitle>
     </DialogHeader>
-    <TransferForm/>
+    <TransferForm onComplete={loadWallet}/>
   </DialogContent>
 </Dialog>
 
@@ -108,8 +131,9 @@ className="cursor-pointer hover:text-slate-300"/>
 <h1 className="text-2xl font-semibold">History</h1>
 <UpdateIcon className="h-7 w-7 p-0 cursor-pointer hover:text-gray-400"/>
   </div>
+  {error && <p className="text-red-500 pb-4">{error}</p>}
   <div className="space-y-5">
-{[1,1,1,1,1,1,1].map((Item,i)=><div key={i}>
+{(wallet?.transactions || []).map((item,i)=><div key={item.id || i}>
   <Card className="px-5 flex justify-between items-center p-2">
 <div className="flex items-center gap-5">
   <Avatar>
@@ -119,17 +143,17 @@ className="cursor-pointer hover:text-slate-300"/>
 </AvatarFallback>
   </Avatar>
   <div className="space-y-1">
-<h1>Buy Asset</h1>
-<p className="text-sm text-gray-500">2024-06-02</p>
+<h1>{item.type || "Wallet transaction"}</h1>
+<p className="text-sm text-gray-500">{item.date || ""}</p>
   </div>
 
 </div>
 <div>
-  <p className={`text-green-500`}>999 USD</p>
+  <p className={`text-green-500`}>{item.amount ?? ""} USD</p>
 </div>
 
   </Card>
-</div>)}
+  </div>)}
 
   </div>
 </div>

@@ -9,6 +9,8 @@ import { useEffect } from "react"
 import { useSelector, useDispatch } from "react-redux"
 import { useParams } from "react-router-dom"
 import { fetchCoinDetails } from "@/State/Coin/Action"
+import api, { authHeaders, getApiError } from "@/config/api"
+import { useState } from "react"
 // import { useSelector, useDispatch } from 'react-redux';
 
 
@@ -17,11 +19,20 @@ const StockDetails = () => {
   const {coin}=useSelector(store=>store)
   const dispatch=useDispatch()
   const {id}=useParams()
+  const [watchlistMessage,setWatchlistMessage]=useState('')
+  const [holding,setHolding]=useState(null)
   useEffect(()=>{
 
     dispatch(fetchCoinDetails({coinId:id,jwt:localStorage.getItem("jwt")}))
+    api.get(`/api/asset/coin/${id}/user`,{headers:authHeaders()})
+      .then(({data})=>setHolding(data))
+      .catch(()=>setHolding(null))
 
-  },[id])
+  },[id,dispatch])
+  const addToWatchlist=async()=>{
+    try { await api.patch(`/api/watchlist/add/coin/${id}`,null,{headers:authHeaders()}); setWatchlistMessage('Added to watchlist') }
+    catch(error){ setWatchlistMessage(getApiError(error)) }
+  }
 
   return (
     <div className="p-5 mt-5">
@@ -41,6 +52,7 @@ const StockDetails = () => {
       <DotIcon className="text-gray-400"/>
       <p className="text-gray-400">{coin.coinDetails?.name}</p>
       </div>
+      {holding && <p className="text-sm text-gray-400">Your holding: {holding.quantity}</p>}
       <div className="flex items-end gap-2">
       <p className="text-xl font-bold">${coin.coinDetails?.market_data.current_price.usd}</p>
 <p className="text-red-600">
@@ -51,10 +63,11 @@ const StockDetails = () => {
     </div>
     </div>
     <div className="flex items-center gap-4">
-      <Button>
-      {true ?  <BookmarkFilledIcon className="h-6 w-6"/>:
+      <Button onClick={addToWatchlist}>
+      {watchlistMessage ?  <BookmarkFilledIcon className="h-6 w-6"/>:
         <BookmarkIcon className="h-6 w-6"/>}
       </Button>
+      {watchlistMessage && <span className="text-sm">{watchlistMessage}</span>}
       <Dialog>
   <DialogTrigger>
     <Button size="lg">Tread</Button>

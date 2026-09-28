@@ -3,12 +3,22 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { DotIcon } from "lucide-react"
 import { useState } from "react"
+import api, { authHeaders, getApiError } from "@/config/api"
+import { useParams } from "react-router-dom"
 
 const TreadingForm = () => {
     const [orderType,setOrderType]=useState("BUY")
-    const handleChange=()=>{
-
+  const [quantity,setQuantity]=useState("")
+  const [message,setMessage]=useState("")
+  const {id}=useParams()
+  const handleSubmit=async()=>{
+    try {
+      await api.post("/api/orders/pay",{coinId:id,quantity:Number(quantity),orderType},{headers:authHeaders()})
+      setMessage(`${orderType} order placed`)
+    } catch (error) {
+      setMessage(getApiError(error))
     }
+  }
   return (
     <div className="space-y-10 p-5">
 <div>
@@ -16,7 +26,7 @@ const TreadingForm = () => {
 <Input
 className="py-7 focus:outline-none"
 placeholder="Enter Amount..."
-onChange={handleChange}
+onChange={(event)=>setQuantity(event.target.value)}
 type="number"
 name="amount"
 />
@@ -26,7 +36,7 @@ name="amount"
     </p>
 </div>
 </div>
-{true && <h1 className="text-red-600 text-center pt-4">Insufficient wallet balance to buy</h1>}
+{message && <h1 className="text-center pt-4">{message}</h1>}
 </div>
 <div className="flex gap-5 items-center">
 
@@ -64,7 +74,7 @@ name="amount"
 </p>
 </div>
 <div>
-    <Button className={`w-full py-6
+    <Button onClick={handleSubmit} disabled={!quantity} className={`w-full py-6
 ${orderType=="SELL"?"bg-red-600 text-white":""}`}>
         {orderType} 
     </Button>

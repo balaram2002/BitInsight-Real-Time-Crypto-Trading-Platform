@@ -4,12 +4,30 @@ import SignupForm from "./SignupForm"
 import { Navigate, useLocation, useNavigate } from "react-router-dom"
 import ForgotPasswordForm from "./ForgotPasswordForm"
 import SigninForm from "./SigninForm"
+import { Moon, Sun } from "lucide-react"
+import { useEffect, useState } from "react"
 
 const Auth = () => {
     const navigate=useNavigate()
     const location=useLocation();
+        const [darkMode,setDarkMode]=useState(()=>localStorage.getItem('theme') !== 'light')
+
+        useEffect(()=>{
+                document.documentElement.classList.toggle('dark',darkMode)
+                localStorage.setItem('theme',darkMode ? 'dark' : 'light')
+        },[darkMode])
+
   return (
     <div className='h-screen relative authContainer'>
+                <button
+                    type="button"
+                    aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                    title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                    onClick={()=>setDarkMode(value=>!value)}
+                    className="absolute top-5 right-5 z-[60] rounded-full border border-white/20 bg-black/20 p-3 text-orange-300 backdrop-blur-md transition hover:bg-orange-500/20"
+                >
+                    {darkMode ? <Sun size={18}/> : <Moon size={18}/>} 
+                </button>
         <div className='absolute top-0 right-0 left-0 bottom-0 bg-[#030712] bg-opacity-50'>
 <div className='bgBlure absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center h-[35rem] w-[30rem] rounded-md z-50 
 bg-black bg-opacity-50 shadow-2xl shadow-white px-10'>

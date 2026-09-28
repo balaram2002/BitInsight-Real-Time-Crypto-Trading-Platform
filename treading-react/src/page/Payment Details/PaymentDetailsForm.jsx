@@ -4,6 +4,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input'
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import api, { authHeaders, getApiError } from '@/config/api'
 
 const PaymentDetailsForm = () => {
     const form=useForm({
@@ -14,8 +15,14 @@ const PaymentDetailsForm = () => {
             bankName:""
         }
     })
-    const onSubmit=(data)=>{
-        console.log(data)
+    const [message,setMessage]=React.useState('')
+    const onSubmit=async(data)=>{
+        try {
+          await api.post('/api/payment-details',data,{headers:authHeaders()})
+          setMessage('Payment details saved')
+        } catch (error) {
+          setMessage(getApiError(error))
+        }
     }
   return (
     <div className='px-10 py-2'>
@@ -24,7 +31,7 @@ const PaymentDetailsForm = () => {
 <form onSubmit={form.handleSubmit(onSubmit)}
  className='space-y-6'>
 
-<FormField
+  <FormField
   control={form.control}
   name="accountHolderName"
   render={({ field }) => (
@@ -59,7 +66,7 @@ const PaymentDetailsForm = () => {
 
 <FormField
   control={form.control}
-  name="accountnumber"
+  name="accountNumber"
   render={({ field }) => (
     <FormItem>
       <FormLabel>Account Number</FormLabel>
@@ -103,6 +110,7 @@ const PaymentDetailsForm = () => {
     </FormItem>
   )}
 />
+{message && <p className='text-sm text-center'>{message}</p>}
 <DialogClose className='w-full'>
 <Button type="submit" className="w-full py-5">
     Submit

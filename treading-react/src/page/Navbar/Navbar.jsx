@@ -5,11 +5,23 @@ import { DragHandleHorizontalIcon, MagnifyingGlassIcon } from '@radix-ui/react-i
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Sidebar } from './Sidebar'
 import { useSelector } from 'react-redux'
+import { Moon, Sun } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const Navbar = () => {
   const {auth}=useSelector(store=>store)
+  const navigate=useNavigate()
+  const [darkMode,setDarkMode]=useState(()=>localStorage.getItem('theme') !== 'light')
+
+  useEffect(()=>{
+    document.documentElement.classList.toggle('dark',darkMode)
+    localStorage.setItem('theme',darkMode ? 'dark' : 'light')
+  },[darkMode])
+
+  const userName=auth.user?.fullName || auth.user?.email || 'Trader'
   return (
-    <div className='px-2 py-3 border-b z-50 bg-background bg-opacity-0 sticky
+    <div className='px-4 lg:px-8 py-3 border-b border-border/70 z-50 bg-background/80 backdrop-blur-xl sticky
      top-0 left-0 right-0 flex justify-between items-center'> 
      <div className='flex items-center gap-3'>
      <Sheet>
@@ -38,22 +50,32 @@ const Navbar = () => {
     <Sidebar/>
   </SheetContent>
 </Sheet>
-<p className="text-sm lg:text-base cursor-pointer">
-    Bg Treading
+<p className="text-sm lg:text-base cursor-pointer tracking-wide font-semibold" onClick={()=>navigate('/')}>
+  BG <span className="text-accent">TRADING</span>
 </p>
-<div className="p-0 ml-9">
+<div className="p-0 ml-3 lg:ml-9">
 <Button variant="outline"
-className="flex items-center gap-3">
+className="flex items-center gap-3 border-border/70">
     <MagnifyingGlassIcon/>
-    <span>Search</span>
+  <span className="hidden sm:inline">Search</span>
 </Button>
 </div>
      </div>
 
-     <div>
+     <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+          onClick={()=>setDarkMode(value=>!value)}
+          className="rounded-full text-accent hover:bg-accent/10"
+        >
+          {darkMode ? <Sun /> : <Moon />}
+        </Button>
         <Avatar>
             <AvatarFallback>
-                {auth.User?.fullName[0].toUpperCase()}
+                {userName[0].toUpperCase()}
             </AvatarFallback>
         </Avatar>
      </div>

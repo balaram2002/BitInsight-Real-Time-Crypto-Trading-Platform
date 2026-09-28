@@ -2,8 +2,9 @@ import { Button } from '@/components/ui/button'
 import { DialogClose } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import React from 'react'
+import api, { authHeaders, getApiError } from '@/config/api'
 
-const TransferForm = () => {
+const TransferForm = ({onComplete}) => {
 const [formData,setFormData] = React.useState({
   amount:'',
   walletId:'',
@@ -14,8 +15,18 @@ const handleChange = (e) =>{
 setFormData({...formData,[e.target.name]: e.target.value})
 }
 
-const handleSubmit = () =>{
-  console.log(formData)
+const [message,setMessage]=React.useState('')
+const handleSubmit = async () =>{
+  try {
+    await api.put(`/api/wallet/${formData.walletId}/transfer`,{
+      amount:Number(formData.amount),
+      purpose:formData.purpose
+    },{headers:authHeaders()})
+    setMessage('Transfer completed')
+    onComplete?.()
+  } catch (error) {
+    setMessage(getApiError(error))
+  }
 }
 
   return (
@@ -54,6 +65,7 @@ const handleSubmit = () =>{
 
   />
 </div>
+{message && <p className='text-sm text-center'>{message}</p>}
 <DialogClose className='w-full'>
 <Button onClick = {handleSubmit}
 className="w-full py-7">

@@ -73,7 +73,7 @@ const Profile = () => {
 <CardTitle>
   2 Step Verification
 </CardTitle>
-{true ? <Badge className={"space-x-2 text-white bg-green-600"}>
+{auth.user?.twoFactorAuth?.enabled ? <Badge className={"space-x-2 text-white bg-green-600"}>
   <VerifiedIcon/>
   <span>
   Enabled

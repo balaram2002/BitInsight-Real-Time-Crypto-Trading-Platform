@@ -82,11 +82,11 @@ public class PaymentServiceImpl implements PaymentService{
 
     @Override
     public PaymentResponse createRazorpayPaymentLink(User user, Long amount,Long orderId) throws RazorpayException {
-        Long Amount=amount*100;
+        Long amountInPaise=amount*100;
         try{
             RazorpayClient razorpay=new RazorpayClient(apiKey,apiSecretKey);
             JSONObject paymentLinkRequest=new JSONObject();
-            paymentLinkRequest.put("amount",amount);
+            paymentLinkRequest.put("amount",amountInPaise);
             paymentLinkRequest.put("currency","INR");
 
             JSONObject customer=new JSONObject();

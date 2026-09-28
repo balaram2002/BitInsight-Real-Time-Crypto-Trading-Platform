@@ -2,8 +2,14 @@ import React from 'react'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import api, { authHeaders } from '@/config/api'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const Activity = () => {
+  const [orders,setOrders]=useState([])
+  const navigate=useNavigate()
+  useEffect(()=>{ api.get('/api/orders',{headers:authHeaders()}).then(({data})=>setOrders(data)).catch(()=>setOrders([])) },[])
   return (
     <div className="p-5 lg:px-20">
     <h1 className="font-bold text-3xl pb-5">Activity</h1>
@@ -20,24 +26,23 @@ const Activity = () => {
     </TableRow>
   </TableHeader>
   <TableBody>
-    {[1,1,1,1,1,1,1,1,1,1].map((item,index)=><TableRow key={index}>
+    {orders.map((item)=><TableRow key={item.id} onClick={()=>navigate(`/activity/order/${item.id}`)} className="cursor-pointer">
        <TableCell>
-        <p>2024/05/31</p>
-        <p className="text-gray-400">12:39:32</p>
+        <p>{item.timestamp}</p>
        </TableCell>
       <TableCell className="font-medium flex items-center gap-2">
         <Avatar className="-z-50">
-          <AvatarImage src="https://coin-images.coingecko.com/coins/images/1/large/bitcoin.png?1696501400"/>
+          <AvatarImage src={item.orderItem?.coin?.image}/>
         </Avatar>
-        <span>Bitcoin</span>
+        <span>{item.orderItem?.coin?.name}</span>
       </TableCell>
     
-      <TableCell className="">$69249</TableCell>
-      <TableCell>1364881428323</TableCell>
-      <TableCell>-0.20009</TableCell>
-      <TableCell className="">$69249</TableCell>
+      <TableCell className="">{item.price}</TableCell>
+      <TableCell>{item.price}</TableCell>
+      <TableCell>{item.orderType}</TableCell>
+      <TableCell className="">{item.status}</TableCell>
       <TableCell className="text-right">
-        345
+        {item.orderItem?.quantity}
       </TableCell>
     </TableRow>)}
   </TableBody>

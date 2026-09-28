@@ -8,7 +8,7 @@ import { MessageCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { getCoinList, getTop50CoinList } from '@/State/Coin/Action';
 import { useSelector, useDispatch } from 'react-redux';
-import { store } from '@/State/Store';
+import { useNavigate } from 'react-router-dom';
 import {
   Pagination,
   PaginationContent,
@@ -25,6 +25,7 @@ export const Home = () => {
   const [isBotRealease,setIsBotRealease]=React.useState(false);
   const{coin}=useSelector(store=>store);
   const dispatch=useDispatch();
+  const navigate=useNavigate();
 
   const handleBotRealease=()=>setIsBotRealease(!isBotRealease);
 
@@ -52,7 +53,7 @@ export const Home = () => {
   useEffect(()=>{
 
     dispatch(getCoinList(1))
-  },[])
+  },[dispatch])
 
   return (
     <div className='relative'>
@@ -87,6 +88,9 @@ export const Home = () => {
               className="rounded-full"
             >
               Top Losers
+            </Button>
+            <Button onClick={() => navigate('/trending')} variant="outline" className="rounded-full">
+              Trending
             </Button>
           </div>
           <AssetTable coin={category=="all"?coin.coinList:coin.top50} category={category}/>

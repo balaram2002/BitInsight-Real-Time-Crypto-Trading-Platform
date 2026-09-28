@@ -1,6 +1,10 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import api, { authHeaders } from '@/config/api'
+import { useEffect, useState } from 'react'
 
 const Withdrawal = () => {
+  const [withdrawals,setWithdrawals]=useState([])
+  useEffect(()=>{ api.get('/api/withdrawal',{headers:authHeaders()}).then(({data})=>setWithdrawals(data)).catch(()=>setWithdrawals([])) },[])
   return (
     <div>
         <div className="p-5 lg:px-20">
@@ -15,14 +19,14 @@ const Withdrawal = () => {
     </TableRow>
   </TableHeader>
   <TableBody>
-    {[1,1,1,1,1,1,1,1,1,1].map((item,index)=><TableRow key={index}>
+    {withdrawals.map((item)=><TableRow key={item.id}>
        <TableCell>
-        <p>June 2, 2024 at 11:43</p>
+        <p>{item.date}</p>
        </TableCell>
       <TableCell className="">Bank</TableCell>
-      <TableCell className="">$69249</TableCell>
+      <TableCell className="">{item.amount}</TableCell>
       <TableCell className="text-right">
-        Success
+        {item.status}
       </TableCell>
     </TableRow>)}
   </TableBody>

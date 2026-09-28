@@ -1,13 +1,10 @@
-import { getCoinList } from '@/State/Coin/Action'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Avatar, AvatarImage } from '@radix-ui/react-avatar'
-import React, { use, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import React from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const AssetTable = ({coin,category}) => {
-  const dispatch=useDispatch()
   const navigate=useNavigate()
 
 
@@ -27,7 +24,7 @@ const AssetTable = ({coin,category}) => {
     </TableRow>
   </TableHeader>
   <TableBody>
-    {coin.map((item,index)=><TableRow key={item.id}>
+    {coin.map((item)=><TableRow key={item.id}>
       <TableCell onClick={()=>navigate(`/market/${item.id}`)} className="font-medium flex items-center gap-2">
         <Avatar className="-z-50">
           <AvatarImage src={item.image}/>

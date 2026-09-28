@@ -51,7 +51,7 @@ export const fetchMarketChart=({coinId,days,jwt})=>async(dispatch)=>{
 export const fetchCoinById=({coinId})=>async(dispatch)=>{
     dispatch({type:FETCH_COIN_BY_ID_REQUEST});
     try{
-    const response=await axios.get(`${API_BASE_URL}/coins/${coinId}`);
+    const response=await axios.get(`${API_BASE_URL}/coins/details/${coinId}`);
     dispatch({type:FETCH_COIN_BY_ID_SUCCESS,payload: response.data});
     console.log("coin by id ",response.data);
 

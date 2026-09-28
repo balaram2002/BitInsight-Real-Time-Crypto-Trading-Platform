@@ -1,5 +1,5 @@
 
-import { login } from '@/State/Auth/Action'
+import { login, verifyLoginOtp } from '@/State/Auth/Action'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
@@ -7,10 +7,13 @@ import { Input } from '@/components/ui/input'
 import { useForm } from 'react-hook-form'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 const SigninForm = () => {
   const dispatch=useDispatch()
   const navigate=useNavigate()
+    const [session,setSession]=useState(null)
+    const [otp,setOtp]=useState('')
     const form=useForm({
         resolver:"",
         defaultValues:{
@@ -18,14 +21,20 @@ const SigninForm = () => {
             password:"",
         }
     })
-    const onSubmit=(data)=>{
-      dispatch(login({data,navigate}))
-        console.log(data);
+    const onSubmit=async(data)=>{
+      const response=await dispatch(login({data,navigate}))
+      if(response?.twoFactorAuthEnabled) setSession(response.session)
+    }
+    const submitOtp=()=>{
+      dispatch(verifyLoginOtp({otp,id:session,navigate}))
     }
   return (
     <div >
 <h1 className='text-xl font-bold text-center pb-3'>Login</h1>
-<Form {...form}>
+{session ? <div className="space-y-5">
+  <Input value={otp} onChange={(event)=>setOtp(event.target.value)} placeholder="Enter OTP" />
+  <Button onClick={submitOtp} className="w-full py-5">Verify OTP</Button>
+</div> : <Form {...form}>
 <form onSubmit={form.handleSubmit(onSubmit)}
  className='space-y-6'>
 
@@ -66,7 +75,7 @@ const SigninForm = () => {
     Submit
 </Button>
  </form>
-</Form>
+</Form>}
     </div>
   )
 }
