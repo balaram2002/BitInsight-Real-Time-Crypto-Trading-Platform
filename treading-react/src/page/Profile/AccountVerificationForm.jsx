@@ -2,11 +2,19 @@ import { Button } from '@/components/ui/button'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '@/components/ui/input-otp'
 import { useState } from 'react'
+import api, { authHeaders, getApiError } from '@/config/api'
 
 const AccountVerificationForm = () => {
     const [value,setValue]=useState("");
-const handleSubmit=()=>{
-    console.log(value)
+  const [sent,setSent]=useState(false)
+  const [message,setMessage]=useState('')
+const handleSend=async()=>{
+  try { await api.post('/api/users/verification/EMAIL/send-otp',null,{headers:authHeaders()}); setSent(true); setMessage('OTP sent') }
+  catch(error){ setMessage(getApiError(error)) }
+}
+const handleSubmit=async()=>{
+  try { await api.patch(`/api/users/enable-two-factor/verify-otp/${value}`,null,{headers:authHeaders()}); setMessage('Two-factor authentication enabled') }
+  catch(error){ setMessage(getApiError(error)) }
 }
 
   return (
@@ -17,7 +25,7 @@ const handleSubmit=()=>{
 <p>balaramgochhayat2002@gmail.com</p>
 <Dialog>
   <DialogTrigger asChild>
-    <Button>Sent OTP</Button>
+    <Button onClick={handleSend}>Send OTP</Button>
   </DialogTrigger>
   <DialogContent>
     <DialogHeader>
@@ -40,11 +48,12 @@ const handleSubmit=()=>{
     <InputOTPSlot index={5} />
   </InputOTPGroup>
 </InputOTP>
-<DialogClose>
+<DialogClose disabled={!sent}>
     <Button
     onClick={handleSubmit}
     className={"w-[10rem]"}>Submit</Button>
 </DialogClose>
+  {message && <p className='text-sm'>{message}</p>}
     </div>
   </DialogContent>
 </Dialog>
